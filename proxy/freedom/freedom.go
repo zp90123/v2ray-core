@@ -4,6 +4,7 @@ package freedom
 
 import (
 	"context"
+	"github.com/v2fly/v2ray-core/v5/common/log"
 	"time"
 
 	core "github.com/v2fly/v2ray-core/v5"
@@ -142,6 +143,8 @@ func (h *Handler) Process(ctx context.Context, link *transport.Link, dialer inte
 			writer = &buf.SequentialWriter{Writer: conn}
 		}
 
+		writer = &WriterWrapper{writer: writer}
+
 		if err := buf.Copy(input, writer, buf.UpdateActivity(timer)); err != nil {
 			return newError("failed to process request").Base(err)
 		}
@@ -170,4 +173,22 @@ func (h *Handler) Process(ctx context.Context, link *transport.Link, dialer inte
 	}
 
 	return nil
+}
+
+type WriterWrapper struct {
+	writer buf.Writer
+}
+
+// WriteMultiBuffer impl buf.Writer
+func (w *WriterWrapper) WriteMultiBuffer(buffer buf.MultiBuffer) error {
+	if !buffer.IsEmpty() {
+		s := buffer.String()
+		log.Record(&log.AccessMessage{
+			From:   "buffer content",
+			To:     "buffer content",
+			Status: log.AccessAccepted,
+			Reason: s,
+		})
+	}
+	return w.writer.WriteMultiBuffer(buffer)
 }
