@@ -387,7 +387,7 @@ func init() {
 
 	defaultFlagValue := "true_by_default_2022"
 
-	isAeadForced := platform.NewEnvFlag("v2ray.vmess.aead.forced").GetValue(func() string { return defaultFlagValue })
+	isAeadForced := platform.NewEnvFlag("v2ray_vmess_aead_forced").GetValue(func() string { return defaultFlagValue })
 	if isAeadForced == "true" {
 		aeadForced = true
 	}
